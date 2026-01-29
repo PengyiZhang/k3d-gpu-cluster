@@ -1,0 +1,8 @@
+mirrors:
+  "docker.io":
+    endpoint:
+      - "https://docker.m.daocloud.io"
+configs:
+  "docker.m.daocloud.io":
+    tls:
+      insecure_skip_verify: true  # 强制跳过证书验证

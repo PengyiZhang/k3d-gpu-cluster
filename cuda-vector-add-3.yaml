@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cuda-vector-add-3
+  namespace: kube-system  # 必须放在 kube-system 命名空间
+  annotations:
+    # 核心：标记为守护级关键 Pod，Kubelet 会尽量不驱逐它
+    scheduler.alpha.kubernetes.io/critical-pod: ""
+spec:
+  # 核心：使用系统级高优先级，磁盘压力大时先踢别人
+  priorityClassName: system-node-critical 
+  runtimeClassName: nvidia
+  restartPolicy: OnFailure
+  
+  # 容忍度：防止节点打上污点后无法调度
+  tolerations:
+  - key: "node.kubernetes.io/disk-pressure"
+    operator: "Exists"
+    effect: "NoSchedule"
+  - key: "node.kubernetes.io/disk-pressure"
+    operator: "Exists"
+    effect: "NoExecute" # 尝试阻止因污点导致的执行中断
+
+  containers:
+    - name: cuda-vector-add-3
+      image: "k8s.gcr.io/cuda-vector-add:v0.1"
+      command: ["/bin/sh", "-c"]
+      args: 
+        - |
+          ./vectorAdd; 
+          echo "计算完成，开始暂停等待检查...";
+          sleep 6000;
+          
+      resources:
+        # 建议加上 requests，这有助于调度器更严肃地对待这个 Pod
+        requests:
+          nvidia.com/gpu: 1
+        limits:
+          nvidia.com/gpu: 1

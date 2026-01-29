@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nvidia-plugin-configs
+  namespace: kube-system
+data:
+  # 注意：这里的 key 名字（group-0）就是将来自动生成的文件名
+  group-0: |
+    version: v1
+    flags:
+      nvidiaDriverRoot: "/"
+    visibleDevices: ["0", "1"]
+  group-1: |
+    version: v1
+    flags:
+      nvidiaDriverRoot: "/"
+    visibleDevices: ["2", "3"]
+  group-2: |
+    version: v1
+    flags:
+      nvidiaDriverRoot: "/"
+    visibleDevices: ["4", "5"]
+  
+  # NOTE: 查看差异性
+  group-3: |
+    version: v1
+    flags:
+      nvidiaDriverRoot: "/"
+    visibleDevices: ["0", "1", "2", "3", "4", "5"]

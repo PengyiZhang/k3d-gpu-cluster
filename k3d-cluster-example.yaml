@@ -1,0 +1,128 @@
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: llmcluster
+servers: 1
+agents: 2
+kubeAPI:
+  hostPort: "6449"
+
+# --- 关键修改部分 ---
+# 环境变量设置：这是控制 Docker 容器可见 GPU 的最直接方式
+# env:
+#   - envVar: NVIDIA_VISIBLE_DEVICES=0,1
+#     nodeFilters:
+#       - agent:0
+#   - envVar: NVIDIA_VISIBLE_DEVICES=2,3
+#     nodeFilters:
+#       - agent:1
+#   - envVar: NVIDIA_VISIBLE_DEVICES=4,5
+#     nodeFilters:
+#       - agent:2
+#   - envVar: NVIDIA_VISIBLE_DEVICES=4,5
+#     nodeFilters:
+#       - server:0
+
+# options:
+#   runtime:
+#     gpuRequest: all
+#     nodeFilters:
+#       - filter: "agent:0"
+#         gpuRequest: "device=0,1"
+#       - filter: "agent:1"
+#         gpuRequest: "device=2,3"
+#       - filter: "agent:2"
+#         gpuRequest: "device=4,5"
+#       - filter: "server:0"
+#         gpuRequest: "device=4,5" # Server 节点不给 GPU，节省资源
+
+# --- 核心修复 ---
+# 这里强制所有节点（包括 Server）都挂载 NVIDIA 驱动库。
+# 这样即使 Server 没有分配物理 GPU 设备，它也能看到驱动文件，
+# 避免报 "LIBRARY_NOT_FOUND"，而是报更准确的 "No device found" (这对 Server 是预期的)。
+# env:
+#   - envVar: NVIDIA_DRIVER_CAPABILITIES=all
+#     nodeFilters:
+#       - all
+
+# options:
+#   runtime:
+#     # 修改点2：使用 gpus 列表格式
+#     # 语法说明: "device=<GPU索引或UUID>@<节点过滤器>"
+#     gpus:
+#       - "device=0,1@agent:0"  # Agent 0 获得 GPU 0 和 1
+#       - "device=2,3@agent:1"  # Agent 1 获得 GPU 2 和 3
+#       - "device=4,5@agent:2"  # Agent 2 获得 GPU 4 和 5 (前提是 agents: 3)
+#       - "device=4,5@server:0"
+#       # Server 节点不出现在这里，因此默认不会挂载任何 GPU，符合你的 "节省资源" 需求
+
+# # ------------------
+env:
+  - envVar: NVIDIA_DRIVER_CAPABILITIES=all
+    nodeFilters:
+      - all
+  # - envVar: NVIDIA_VISIBLE_DEVICES=0,1
+  #   nodeFilters:
+  #     - all
+
+options:
+  runtime:
+    gpuRequest: all
+
+# 关键修复：直接把宿主机的 NVIDIA 驱动路径挂载进去
+# 通常在 Ubuntu/Debian 上路径如下，如果不确定可以执行 `find /usr/lib -name "libnvidia-ml.so*"` 确认
+# volumes:
+#   - volume: /usr/lib/x86_64-linux-gnu/libnvidia-ml.so:/usr/lib/x86_64-linux-gnu/libnvidia-ml.so
+#     nodeFilters:
+#       - all
+#   - volume: /usr/lib/x86_64-linux-gnu/libcuda.so:/usr/lib/x86_64-linux-gnu/libcuda.so
+#     nodeFilters:
+#       - all
+#   - volume: /usr/bin/nvidia-smi:/usr/bin/nvidia-smi
+#     nodeFilters:
+#       - all
+# --- 
+
+ports:
+  - port: 8085:80
+    nodeFilters:
+      - loadbalancer
+  - port: 8087:30080
+    nodeFilters:
+      - loadbalancer
+  - port: 8443:443
+    nodeFilters:
+      - loadbalancer
+
+
+# registries:
+#   config: |
+#     mirrors:
+#       docker.io:
+#         endpoint:
+#           - https://docker.m.daocloud.io
+
+#       quay.io:
+#         endpoint:
+#           - https://quay.m.daocloud.io
+
+#       gcr.io:
+#         endpoint:
+#           - https://gcr.m.daocloud.io
+
+#       k8s.gcr.io:
+#         endpoint:
+#           - https://k8s-gcr.m.daocloud.io
+
+#       ghcr.io:
+#         endpoint:
+#           - https://ghcr.m.daocloud.io
+
+#       registry.k8s.io:
+#         endpoint:
+#           - https://k8s.m.daocloud.io
+
+#     configs:
+#       docker.nju.edu.cn:
+#         auth:
+
