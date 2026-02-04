@@ -51,3 +51,8 @@ echo "k3d cluster created with GPU support."
 kubectl get pods -A -w -o wide
 
 
+
+# 在集群层面导入镜像的命令示例:
+# k3d image import /home/zhangpengyi/k3d-data/mp.tar -c llmcluster
+
+

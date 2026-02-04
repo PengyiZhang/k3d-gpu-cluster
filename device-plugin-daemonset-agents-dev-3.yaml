@@ -34,7 +34,7 @@ spec:
       # See https://kubernetes.io/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/
       priorityClassName: "system-node-critical"
       nodeSelector:
-        kubernetes.io/hostname: k3d-llmcluster-agent-0
+        kubernetes.io/hostname: k3d-llmclusterdev-agent-0
       containers:
       - image: k3d-registry.localhost:5000/nvcr.io/nvidia/k8s-device-plugin:v0.15.0-rc.2
         name: nvidia-device-plugin-ctr
@@ -89,7 +89,7 @@ spec:
       # See https://kubernetes.io/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/
       priorityClassName: "system-node-critical"
       nodeSelector:
-        kubernetes.io/hostname: k3d-llmcluster-agent-1
+        kubernetes.io/hostname: k3d-llmclusterdev-agent-1
       containers:
       - image: k3d-registry.localhost:5000/nvcr.io/nvidia/k8s-device-plugin:v0.15.0-rc.2
         name: nvidia-device-plugin-ctr
@@ -144,7 +144,7 @@ spec:
       # See https://kubernetes.io/docs/tasks/administer-cluster/guaranteed-scheduling-critical-addon-pods/
       priorityClassName: "system-node-critical"
       nodeSelector:
-        kubernetes.io/hostname: k3d-llmcluster-agent-2
+        kubernetes.io/hostname: k3d-llmclusterdev-agent-2
       containers:
       - image: k3d-registry.localhost:5000/nvcr.io/nvidia/k8s-device-plugin:v0.15.0-rc.2
         name: nvidia-device-plugin-ctr

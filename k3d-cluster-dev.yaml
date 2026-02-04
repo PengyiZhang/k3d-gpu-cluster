@@ -1,0 +1,58 @@
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: llmclusterdev
+servers: 1
+agents: 2
+kubeAPI:
+  hostPort: "6450"
+
+env:
+  - envVar: NVIDIA_DRIVER_CAPABILITIES=all
+    nodeFilters:
+      - all
+options:
+  runtime:
+    gpuRequest: all
+
+ports:
+  - port: 8180:80
+    nodeFilters:
+      - loadbalancer
+  - port: 8200:9200
+    nodeFilters:
+      - loadbalancer
+  - port: 9443:443
+    nodeFilters:
+      - loadbalancer
+
+
+registries:
+  config: |
+    mirrors:
+      docker.io:
+        endpoint:
+          - http://k3d-registry.localhost:5000
+      quay.io:
+        endpoint:
+          - http://k3d-registry.localhost:5000
+      gcr.io:
+        endpoint:
+          - http://k3d-registry.localhost:5000
+      k8s.gcr.io:
+        endpoint:
+          - http://k3d-registry.localhost:5000
+      ghcr.io:
+        endpoint:
+          - http://k3d-registry.localhost:5000
+      registry.k8s.io:
+        endpoint:
+          - http://k3d-registry.localhost:5000
+      nvcr.io:
+        endpoint:
+          - http://k3d-registry.localhost:5000
+      docker.elastic.co:
+        endpoint:
+          - http://k3d-registry.localhost:5000
+
+
